@@ -7,8 +7,10 @@ const form = document.querySelector('form');
 // ------------------------------------------
 
 function fetchData(url) {
-    return fetch(url)
-      .then(res => res.json())
+  return fetch(url)
+           .then(checkStatus)  
+           .then(res => res.json())
+           .catch(error => console.log('Looks like there was a problem!', error))
 }
 
 fetchData('https://dog.ceo/api/breeds/list')
@@ -20,6 +22,14 @@ fetchData('https://dog.ceo/api/breeds/image/random')
 // ------------------------------------------
 //  HELPER FUNCTIONS
 // ------------------------------------------
+
+function checkStatus(response) {
+  if (response.ok) {
+    return Promise.resolve(response);
+  } else {
+    return Promise.reject(new Error(response.statusText));
+  }
+}
 
 function generateOptions(data) {
   const options = data.map(item => `
@@ -37,24 +47,23 @@ function generateImage(data) {
 }
 
 function fetchBreedImage() {
-    const breed = select.value;
-    const img = card.querySelector('img');
-    const p = card.querySelector('p');
-
-    fetchData(`https://dog.ceo/api/breed/${breed}/images/random`)
-      .then(data => {
-          img.src = data.message;
-          alt = breed;
-          p.textContent = `Click to view more${breed}s`
-      })
+  const breed = select.value;
+  const img = card.querySelector('img');
+  const p = card.querySelector('p');
+  
+  fetchData(`https://dog.ceo/api/breed/${breed}/images/random`)
+    .then(data => {
+      img.src = data.message;
+      img.alt = breed;
+      p.textContent = `Click to view more ${breed}s`;
+    })
 }
 
 // ------------------------------------------
 //  EVENT LISTENERS
 // ------------------------------------------
-select.addEventListener(`chage`, fetchBreedImage);
-card.addEventListener('click', fetchBreedImage)
-
+select.addEventListener('change', fetchBreedImage);
+card.addEventListener('click', fetchBreedImage);
 
 // ------------------------------------------
 //  POST DATA
